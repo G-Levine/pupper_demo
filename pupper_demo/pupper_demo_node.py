@@ -5,7 +5,7 @@ from std_msgs.msg import Empty
 from sensor_msgs.msg import Joy
 from vision_msgs.msg import Detection2DArray
 from controller_manager_msgs.srv import SwitchController
-from tf.transformations import quaternion_from_euler
+from tf_transformations import quaternion_about_axis
 import numpy as np
 
 KP = 10.0
@@ -131,7 +131,7 @@ class PupperDemoNode(Node):
             self.mode = 'tracking'
             cmd_pose = Pose()
             pitch = -0.52 # Look up during tracking
-            q = quaternion_from_euler(0, pitch, 0)
+            q = quaternion_about_axis(pitch, [1, 0, 0])
             cmd_pose.orientation.x = q[0]
             cmd_pose.orientation.y = q[1]
             cmd_pose.orientation.z = q[2]
@@ -149,14 +149,14 @@ class PupperDemoNode(Node):
             # Velocity command
             cmd_vel = Twist()
             cmd_vel.linear.x = msg.axes[1]  # Left stick Y
-            cmd_vel.linear.y = msg.axes[0]  # Left stick X
-            cmd_vel.angular.z = msg.axes[2]  # Right stick X
+            cmd_vel.linear.y = msg.axes[0] * 0.5  # Left stick X
+            cmd_vel.angular.z = msg.axes[3] * 2.0  # Right stick X
             self.vel_pub.publish(cmd_vel)
 
             # Pose command (pitch from right stick Y)
             cmd_pose = Pose()
-            pitch = msg.axes[3]  # Right stick Y
-            q = quaternion_from_euler(0, pitch, 0)
+            pitch = msg.axes[2]  # Right stick Y
+            q = quaternion_about_axis(pitch, [1, 0, 0])
             cmd_pose.orientation.x = q[0]
             cmd_pose.orientation.y = q[1]
             cmd_pose.orientation.z = q[2]
@@ -164,24 +164,26 @@ class PupperDemoNode(Node):
             self.pose_pub.publish(cmd_pose)
 
     async def execute_trajectory(self):
-        # Switch to trajectory controller
-        req = SwitchController.Request()
-        req.start_controllers = ['joint_trajectory_controller']
-        req.stop_controllers = ['neural_controller']
-        req.strictness = 2
-        req.start_asap = True
-        req.timeout = 0.0
-
-        await self.switch_controller.call_async(req)
-
-        # Execute predefined trajectory here
-        # TODO: Add trajectory execution code
-
-        # Switch back to neural controller
-        req.start_controllers = ['neural_controller']
-        req.stop_controllers = ['joint_trajectory_controller']
-        await self.switch_controller.call_async(req)
         self.mode = 'manual'
+        return
+        # # Switch to trajectory controller
+        # req = SwitchController.Request()
+        # req.start_controllers = ['joint_trajectory_controller']
+        # req.stop_controllers = ['neural_controller']
+        # req.strictness = 2
+        # req.start_asap = True
+        # req.timeout = 0.0
+
+        # await self.switch_controller.call_async(req)
+
+        # # Execute predefined trajectory here
+        # # TODO: Add trajectory execution code
+
+        # # Switch back to neural controller
+        # req.start_controllers = ['neural_controller']
+        # req.stop_controllers = ['joint_trajectory_controller']
+        # await self.switch_controller.call_async(req)
+        # self.mode = 'manual'
 
 
 if __name__ == '__main__':

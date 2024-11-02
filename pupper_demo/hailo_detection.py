@@ -29,7 +29,7 @@ class HailoDetectionNode(Node):
 
         # Declare and get parameters
         self.declare_parameter('model_path', '/home/pi/resources/yolov5m_wo_spp_60p.hef')
-        self.declare_parameter('labels_path', 'coco.txt')
+        self.declare_parameter('labels_path', '/home/pi/resources/coco.txt')
         self.declare_parameter('score_threshold', 0.5)
 
         self.model_path = self.get_parameter('model_path').value
