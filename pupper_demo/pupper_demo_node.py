@@ -131,7 +131,7 @@ class PupperDemoNode(Node):
             self.mode = 'tracking'
             cmd_pose = Pose()
             pitch = -0.52 # Look up during tracking
-            q = quaternion_about_axis(pitch, [1, 0, 0])
+            q = quaternion_about_axis(pitch, [0, 1, 0])
             cmd_pose.orientation.x = q[0]
             cmd_pose.orientation.y = q[1]
             cmd_pose.orientation.z = q[2]
@@ -155,8 +155,8 @@ class PupperDemoNode(Node):
 
             # Pose command (pitch from right stick Y)
             cmd_pose = Pose()
-            pitch = msg.axes[2]  # Right stick Y
-            q = quaternion_about_axis(pitch, [1, 0, 0])
+            pitch = msg.axes[4] * 0.5  # Right stick Y
+            q = quaternion_about_axis(pitch, [0, 1, 0])
             cmd_pose.orientation.x = q[0]
             cmd_pose.orientation.y = q[1]
             cmd_pose.orientation.z = q[2]
